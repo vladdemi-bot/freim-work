@@ -4,9 +4,10 @@ import { CreateProjectInput, Project, UpdateProjectInput } from './project';
 export interface ProjectsRepository {
   create(input: CreateProjectInput): Promise<Project>;
   findAll(): Promise<Project[]>;
-  findOne(id: string): Promise<Project | null>;
-  update(id: string, input: UpdateProjectInput): Promise<Project | null>;
-  remove(id: string): Promise<boolean>;
+  findOne(id: number): Promise<Project | null>;
+  findByName(name: string): Promise<Project | null>;
+  update(id: number, input: UpdateProjectInput): Promise<Project | null>;
+  remove(id: number): Promise<Project | null>;
 }
 
 export const PROJECTS_REPOSITORY = Symbol('PROJECTS_REPOSITORY');
