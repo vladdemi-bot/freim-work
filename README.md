@@ -46,6 +46,22 @@ Responses use `ProjectResponseDto`, which exposes only `id`, `name`, `descriptio
 
 Send an `x-trace-id` header to include a caller-provided trace ID; otherwise the API generates one.
 
+### API documentation
+
+- Swagger UI: `http://localhost:3000/docs`
+- OpenAPI JSON: `http://localhost:3000/openapi.json`
+- Generate the checked-in document: `npm run openapi:generate`
+- Lint the generated document with Redocly: `npm run lint:openapi`
+- Source repository: [freim-work practical](https://github.com/vladdemi-bot/freim-work)
+
+The OpenAPI document includes an HTTP bearer/JWT security scheme for consumers, but the current API does not enforce authentication.
+
+### Контрольні запитання
+
+- **Чим contract-first відрізняється від code-first?** У contract-first спочатку погоджують OpenAPI-контракт і вже за ним реалізують API. У code-first спочатку пишуть код, а документацію генерують з нього.
+- **Чому undocumented error є дефектом контракту?** Клієнт не може передбачити формат і значення помилки, тому не може надійно обробити її чи показати користувачу.
+- **Що входить до breaking change?** Зміна, що може зламати сумісного клієнта: видалення або перейменування endpoint/поля, зміна типу чи обов’язковості поля, зміна статус-коду або формату відповіді без сумісного переходу.
+
 ### Run locally
 
 ```powershell
