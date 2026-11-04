@@ -81,6 +81,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const titles: Record<string, string> = {
       VALIDATION_ERROR: 'Request validation failed',
       PROJECT_NOT_FOUND: 'Project not found',
+      EVENT_NOT_FOUND: 'Event not found',
+      CATEGORY_NOT_FOUND: 'Category not found',
+      REGISTRATION_ALREADY_EXISTS: 'Participant already registered',
       ROUTE_NOT_FOUND: 'Route not found',
       PROJECT_ALREADY_EXISTS: 'Project already exists',
       PROJECT_LIMIT_REACHED: 'Project limit reached',

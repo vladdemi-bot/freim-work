@@ -57,6 +57,22 @@ The API returns an `X-Request-Id` response header. A caller can provide `x-reque
 
 The OpenAPI document includes an HTTP bearer/JWT security scheme for consumers, but the current API does not enforce authentication.
 
+## ПР6 CampusHub Events API
+
+Доданий resource-oriented API подій з in-memory категоріями, подіями та реєстраціями. Список ресурсів і зв’язки описані в [docs/resource-map.md](docs/resource-map.md); приклади HTTP-запитів, заголовків, відповідей і помилок — у [docs/api-examples.md](docs/api-examples.md).
+
+| Method | Path | Результат |
+|---|---|---|
+| `GET` | `/categories` | Список попередньо підготовлених категорій |
+| `POST` | `/events` | `201 Created`, UUID та `Location` |
+| `GET` | `/events` | Список подій |
+| `GET` | `/events/:id` | Одна подія; `:id` має бути UUID |
+| `PATCH` | `/events/:id` | Часткове оновлення; `id` і `createdAt` зберігаються |
+| `DELETE` | `/events/:id` | `204 No Content`, видаляються також реєстрації |
+| `POST` | `/events/:id/registrations` | `201 Created`, `Location`; пара event/participant унікальна |
+
+Назва події та категорія обов’язкові; опис необов’язковий. Некоректні тіла й невідомий `categoryId` повертають 400, відсутня подія — 404, повторна реєстрація — 409. API використовує наявний Problem Details формат і `X-Request-Id`. Дані зникають після перезапуску.
+
 ### Контрольні запитання
 
 - **Чим contract-first відрізняється від code-first?** У contract-first спочатку погоджують OpenAPI-контракт і вже за ним реалізують API. У code-first спочатку пишуть код, а документацію генерують з нього.
