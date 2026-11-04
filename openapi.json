@@ -40,9 +40,29 @@
           "400": {
             "description": "Request validation failed or contains unknown properties.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
+                },
+                "examples": {
+                  "problem": {
+                    "summary": "Request validation failed or contains unknown properties.",
+                    "value": {
+                      "type": "https://example.com/problems/validation-error",
+                      "title": "Request validation failed",
+                      "status": 400,
+                      "detail": "Request validation failed",
+                      "instance": "/projects",
+                      "code": "VALIDATION_ERROR",
+                      "requestId": "550e8400-e29b-41d4-a716-446655440000",
+                      "errors": [
+                        {
+                          "field": "name",
+                          "message": "Name must contain at least 3 characters"
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -50,7 +70,7 @@
           "409": {
             "description": "A project with this name already exists.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -60,7 +80,7 @@
           "500": {
             "description": "Unexpected server error.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -93,7 +113,7 @@
           "500": {
             "description": "Unexpected server error.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -134,9 +154,9 @@
             }
           },
           "400": {
-            "description": "The ID must be an integer.",
+            "description": "The ID must be a positive integer.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -146,9 +166,23 @@
           "404": {
             "description": "Project not found.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
+                },
+                "examples": {
+                  "problem": {
+                    "summary": "Project not found.",
+                    "value": {
+                      "type": "https://example.com/problems/project-not-found",
+                      "title": "Project not found",
+                      "status": 404,
+                      "detail": "Project with id 10 was not found",
+                      "instance": "/projects/10",
+                      "code": "PROJECT_NOT_FOUND",
+                      "requestId": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                  }
                 }
               }
             }
@@ -156,7 +190,7 @@
           "500": {
             "description": "Unexpected server error.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -214,9 +248,9 @@
             }
           },
           "400": {
-            "description": "Request validation failed or the ID is not an integer.",
+            "description": "Request validation failed or the ID is invalid.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -226,7 +260,7 @@
           "404": {
             "description": "Project not found.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -236,7 +270,7 @@
           "409": {
             "description": "A project with this name already exists.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -246,7 +280,7 @@
           "500": {
             "description": "Unexpected server error.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -285,9 +319,9 @@
             }
           },
           "400": {
-            "description": "The ID must be an integer.",
+            "description": "The ID must be a positive integer.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -297,7 +331,7 @@
           "404": {
             "description": "Project not found.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -307,7 +341,7 @@
           "500": {
             "description": "Unexpected server error.",
             "content": {
-              "application/json": {
+              "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorDto"
                 }
@@ -451,42 +485,65 @@
       "ApiErrorDto": {
         "type": "object",
         "properties": {
-          "statusCode": {
+          "type": {
+            "type": "string",
+            "example": "https://example.com/problems/project-not-found"
+          },
+          "title": {
+            "type": "string",
+            "example": "Project not found"
+          },
+          "status": {
             "type": "number",
             "example": 404,
             "description": "HTTP status code."
           },
-          "errorCode": {
-            "type": "string",
-            "example": "PROJECT_NOT_FOUND",
-            "description": "Stable machine-readable error code."
-          },
-          "message": {
+          "detail": {
             "type": "string",
             "example": "Project with id 10 was not found"
           },
-          "path": {
+          "instance": {
             "type": "string",
             "example": "/projects/10"
           },
-          "timestamp": {
+          "code": {
             "type": "string",
-            "format": "date-time",
-            "example": "2026-09-23T10:00:00.000Z"
+            "example": "PROJECT_NOT_FOUND"
           },
-          "traceId": {
+          "requestId": {
             "type": "string",
             "format": "uuid",
             "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "field": "name",
+                "message": "Name must contain at least 3 characters"
+              }
+            ]
           }
         },
         "required": [
-          "statusCode",
-          "errorCode",
-          "message",
-          "path",
-          "timestamp",
-          "traceId"
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "code",
+          "requestId"
         ]
       }
     }

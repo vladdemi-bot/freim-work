@@ -24,7 +24,10 @@ export class InMemoryProjectsRepository implements ProjectsRepository {
   }
 
   async findByName(name: string): Promise<Project | null> {
-    const project = [...this.projects.values()].find((item) => item.name === name);
+    const normalizedName = name.toLocaleLowerCase();
+    const project = [...this.projects.values()].find(
+      (item) => item.name.toLocaleLowerCase() === normalizedName,
+    );
     return project ? { ...project } : null;
   }
 

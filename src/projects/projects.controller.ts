@@ -3,29 +3,31 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiExcludeEndpoint,
   ApiExtraModels,
-  ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiResponse,
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
 import { ApiErrorDto } from '../common/api-error.dto';
+import { ApiProblemResponse } from '../common/api-problem-response.decorator';
+import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectResponseDto } from './dto/project-response.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectsService } from './projects.service';
+import { createProjectSchema, projectIdSchema, updateProjectSchema } from './project.schemas';
+import { env } from '../config/env';
 
 @Controller('projects')
 @ApiTags('Projects')
@@ -68,31 +70,21 @@ export class ProjectsController {
       },
     },
   })
-  @ApiResponse({
+  @ApiProblemResponse(400, 'Request validation failed or contains unknown properties.', {
+    type: 'https://example.com/problems/validation-error',
+    title: 'Request validation failed',
     status: 400,
-    description: 'Request validation failed or contains unknown properties.',
-    type: ApiErrorDto,
-    content: {
-      'application/json': {
-        examples: {
-          validationError: {
-            summary: 'Invalid request',
-            value: {
-              statusCode: 400,
-              errorCode: 'VALIDATION_ERROR',
-              message: 'name must be longer than or equal to 3 characters',
-              path: '/projects',
-              timestamp: '2026-09-23T10:00:00.000Z',
-              traceId: '550e8400-e29b-41d4-a716-446655440000',
-            },
-          },
-        },
-      },
-    },
+    detail: 'Request validation failed',
+    instance: '/projects',
+    code: 'VALIDATION_ERROR',
+    requestId: '550e8400-e29b-41d4-a716-446655440000',
+    errors: [{ field: 'name', message: 'Name must contain at least 3 characters' }],
   })
-  @ApiResponse({ status: 409, description: 'A project with this name already exists.', type: ApiErrorDto })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected server error.', type: ApiErrorDto })
-  create(@Body() input: CreateProjectDto): Promise<ProjectResponseDto> {
+  @ApiProblemResponse(409, 'A project with this name already exists.')
+  @ApiProblemResponse(500, 'Unexpected server error.')
+  create(
+    @Body(new ZodValidationPipe(createProjectSchema)) input: CreateProjectDto,
+  ): Promise<ProjectResponseDto> {
     return this.projects.create(input);
   }
 
@@ -119,39 +111,36 @@ export class ProjectsController {
       },
     },
   })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected server error.', type: ApiErrorDto })
+  @ApiProblemResponse(500, 'Unexpected server error.')
   findAll(): Promise<ProjectResponseDto[]> {
     return this.projects.findAll();
+  }
+
+  @Get('error/test')
+  @ApiExcludeEndpoint()
+  triggerTestError(): never {
+    if (env.NODE_ENV !== 'development') throw new NotFoundException();
+    throw new Error('Test error');
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a project by ID' })
   @ApiParam({ name: 'id', type: Number, description: 'Numeric project ID.', example: 10 })
   @ApiOkResponse({ description: 'Project found.', type: ProjectResponseDto })
-  @ApiResponse({ status: 400, description: 'The ID must be an integer.', type: ApiErrorDto })
-  @ApiNotFoundResponse({
-    description: 'Project not found.',
-    type: ApiErrorDto,
-    content: {
-      'application/json': {
-        examples: {
-          projectNotFound: {
-            summary: 'Unknown project ID',
-            value: {
-              statusCode: 404,
-              errorCode: 'PROJECT_NOT_FOUND',
-              message: 'Project with id 10 was not found',
-              path: '/projects/10',
-              timestamp: '2026-09-23T10:00:00.000Z',
-              traceId: '550e8400-e29b-41d4-a716-446655440000',
-            },
-          },
-        },
-      },
-    },
+  @ApiProblemResponse(400, 'The ID must be a positive integer.')
+  @ApiProblemResponse(404, 'Project not found.', {
+    type: 'https://example.com/problems/project-not-found',
+    title: 'Project not found',
+    status: 404,
+    detail: 'Project with id 10 was not found',
+    instance: '/projects/10',
+    code: 'PROJECT_NOT_FOUND',
+    requestId: '550e8400-e29b-41d4-a716-446655440000',
   })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected server error.', type: ApiErrorDto })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<ProjectResponseDto> {
+  @ApiProblemResponse(500, 'Unexpected server error.')
+  findOne(
+    @Param('id', new ZodValidationPipe(projectIdSchema, 'id')) id: number,
+  ): Promise<ProjectResponseDto> {
     return this.projects.findOne(id);
   }
 
@@ -168,13 +157,13 @@ export class ProjectsController {
     },
   })
   @ApiOkResponse({ description: 'Project updated.', type: ProjectResponseDto })
-  @ApiResponse({ status: 400, description: 'Request validation failed or the ID is not an integer.', type: ApiErrorDto })
-  @ApiNotFoundResponse({ description: 'Project not found.', type: ApiErrorDto })
-  @ApiResponse({ status: 409, description: 'A project with this name already exists.', type: ApiErrorDto })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected server error.', type: ApiErrorDto })
+  @ApiProblemResponse(400, 'Request validation failed or the ID is invalid.')
+  @ApiProblemResponse(404, 'Project not found.')
+  @ApiProblemResponse(409, 'A project with this name already exists.')
+  @ApiProblemResponse(500, 'Unexpected server error.')
   update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() input: UpdateProjectDto,
+    @Param('id', new ZodValidationPipe(projectIdSchema, 'id')) id: number,
+    @Body(new ZodValidationPipe(updateProjectSchema)) input: UpdateProjectDto,
   ): Promise<ProjectResponseDto> {
     return this.projects.update(id, input);
   }
@@ -183,10 +172,12 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Delete a project' })
   @ApiParam({ name: 'id', type: Number, description: 'Numeric project ID.', example: 10 })
   @ApiOkResponse({ description: 'Deleted project.', type: ProjectResponseDto })
-  @ApiResponse({ status: 400, description: 'The ID must be an integer.', type: ApiErrorDto })
-  @ApiNotFoundResponse({ description: 'Project not found.', type: ApiErrorDto })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected server error.', type: ApiErrorDto })
-  remove(@Param('id', ParseIntPipe) id: number): Promise<ProjectResponseDto> {
+  @ApiProblemResponse(400, 'The ID must be a positive integer.')
+  @ApiProblemResponse(404, 'Project not found.')
+  @ApiProblemResponse(500, 'Unexpected server error.')
+  remove(
+    @Param('id', new ZodValidationPipe(projectIdSchema, 'id')) id: number,
+  ): Promise<ProjectResponseDto> {
     return this.projects.remove(id);
   }
 }
