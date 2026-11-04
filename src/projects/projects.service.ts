@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -7,6 +6,8 @@ import {
 import { CreateProjectInput, Project, UpdateProjectInput } from './project';
 import { PROJECTS_REPOSITORY, ProjectsRepository } from './projects.repository';
 import { ProjectResponseDto } from './dto/project-response.dto';
+import { env } from '../config/env';
+import { ApiException } from '../common/api-exception';
 
 @Injectable()
 export class ProjectsService {
@@ -17,7 +18,18 @@ export class ProjectsService {
   async create(input: CreateProjectInput): Promise<ProjectResponseDto> {
     const existing = await this.repository.findByName(input.name);
     if (existing) {
-      throw new ConflictException(`Project with name "${input.name}" already exists`);
+      throw new ApiException(
+        'PROJECT_ALREADY_EXISTS',
+        `Project with name "${input.name}" already exists`,
+        409,
+      );
+    }
+    if ((await this.repository.findAll()).length >= env.MAX_PROJECTS) {
+      throw new ApiException(
+        'PROJECT_LIMIT_REACHED',
+        'Maximum number of projects has been reached',
+        409,
+      );
     }
     const project = await this.repository.create(input);
     return this.toResponse(project);
@@ -41,7 +53,11 @@ export class ProjectsService {
     if (input.name && input.name !== current.name) {
       const existing = await this.repository.findByName(input.name);
       if (existing && existing.id !== id) {
-        throw new ConflictException(`Project with name "${input.name}" already exists`);
+        throw new ApiException(
+          'PROJECT_ALREADY_EXISTS',
+          `Project with name "${input.name}" already exists`,
+          409,
+        );
       }
     }
 

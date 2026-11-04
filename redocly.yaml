@@ -1,0 +1,7 @@
+extends:
+  - recommended
+rules:
+  # This repository does not declare a license, so do not invent one in the API contract.
+  info-license: off
+  # GET /projects has no client-error condition; ID and body operations document their 4xx responses.
+  operation-4xx-response: off

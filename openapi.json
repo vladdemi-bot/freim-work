@@ -1,0 +1,1140 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/projects": {
+      "post": {
+        "operationId": "ProjectsController_create",
+        "summary": "Create a project",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDto"
+              },
+              "examples": {
+                "studyFlow": {
+                  "summary": "Create StudyFlow",
+                  "value": {
+                    "name": "StudyFlow",
+                    "description": "A system for managing learning projects.",
+                    "status": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or contains unknown properties.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                },
+                "examples": {
+                  "problem": {
+                    "summary": "Request validation failed or contains unknown properties.",
+                    "value": {
+                      "type": "https://example.com/problems/validation-error",
+                      "title": "Request validation failed",
+                      "status": 400,
+                      "detail": "Request validation failed",
+                      "instance": "/projects",
+                      "code": "VALIDATION_ERROR",
+                      "requestId": "550e8400-e29b-41d4-a716-446655440000",
+                      "errors": [
+                        {
+                          "field": "name",
+                          "message": "Name must contain at least 3 characters"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A project with this name already exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      },
+      "get": {
+        "operationId": "ProjectsController_findAll",
+        "summary": "List all projects",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Projects ordered by insertion order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/projects/{id}": {
+      "get": {
+        "operationId": "ProjectsController_findOne",
+        "summary": "Get a project by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Numeric project ID.",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The ID must be a positive integer.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                },
+                "examples": {
+                  "problem": {
+                    "summary": "Project not found.",
+                    "value": {
+                      "type": "https://example.com/problems/project-not-found",
+                      "title": "Project not found",
+                      "status": 404,
+                      "detail": "Project with id 10 was not found",
+                      "instance": "/projects/10",
+                      "code": "PROJECT_NOT_FOUND",
+                      "requestId": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      },
+      "patch": {
+        "operationId": "ProjectsController_update",
+        "summary": "Update a project",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Numeric project ID.",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectDto"
+              },
+              "examples": {
+                "renameProject": {
+                  "summary": "Change the project name",
+                  "value": {
+                    "name": "StudyFlow 2",
+                    "status": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the ID is invalid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A project with this name already exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      },
+      "delete": {
+        "operationId": "ProjectsController_remove",
+        "summary": "Delete a project",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Numeric project ID.",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The ID must be a positive integer.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Projects"
+        ]
+      }
+    },
+    "/categories": {
+      "get": {
+        "operationId": "EventsController_findCategories",
+        "summary": "List event categories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Seeded event categories.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      }
+    },
+    "/events": {
+      "post": {
+        "operationId": "EventsController_create",
+        "summary": "Create an event",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventDto"
+              },
+              "examples": {
+                "workshop": {
+                  "summary": "Create a workshop",
+                  "value": {
+                    "title": "Node.js Workshop",
+                    "description": "Introductory campus workshop.",
+                    "categoryId": "11111111-1111-4111-8111-111111111111"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created. The Location header identifies the new resource.",
+            "headers": {
+              "Location": {
+                "description": "URI of the created event.",
+                "schema": {
+                  "type": "string",
+                  "example": "/events/550e8400-e29b-41d4-a716-446655440000"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event data or categoryId.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      },
+      "get": {
+        "operationId": "EventsController_findAll",
+        "summary": "List events",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All events.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "operationId": "EventsController_findOne",
+        "summary": "Get an event by UUID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event UUID.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The id must be a UUID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      },
+      "patch": {
+        "operationId": "EventsController_update",
+        "summary": "Update selected event fields",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event UUID.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventDto"
+              },
+              "examples": {
+                "rename": {
+                  "summary": "Change event title",
+                  "value": {
+                    "title": "Advanced Node.js Workshop"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated event.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid patch body, id, or categoryId.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      },
+      "delete": {
+        "operationId": "EventsController_remove",
+        "summary": "Delete an event and its registrations",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event UUID.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Event and all related registrations deleted. Response has no body."
+          },
+          "400": {
+            "description": "The id must be a UUID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      }
+    },
+    "/events/{id}/registrations": {
+      "post": {
+        "operationId": "EventsController_register",
+        "summary": "Register a participant for an event",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Event UUID.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration created. The Location header identifies the registration resource.",
+            "headers": {
+              "Location": {
+                "description": "URI of the created registration.",
+                "schema": {
+                  "type": "string",
+                  "example": "/events/550e8400-e29b-41d4-a716-446655440000/registrations/33333333-3333-4333-8333-333333333333"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The id or participantId is invalid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Participant is already registered for this event.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CampusHub Events"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "CampusHub API",
+    "description": "CampusHub university events and registrations API, plus the Projects teaching resource. Bearer authentication is documented as a scheme but is not enforced by this application.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Projects",
+      "description": "Create, inspect, update, and remove projects."
+    },
+    {
+      "name": "CampusHub Events",
+      "description": "Manage university events, browse categories, and register participants."
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://127.0.0.1:3000",
+      "description": "Local development"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name (3–100 characters).",
+            "minLength": 3,
+            "maxLength": 100,
+            "example": "StudyFlow"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional project description, up to 500 characters.",
+            "maxLength": 500,
+            "example": "A system for managing learning projects."
+          },
+          "status": {
+            "type": "string",
+            "description": "Current project status.",
+            "enum": [
+              "draft",
+              "active",
+              "completed"
+            ],
+            "example": "active"
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name (3–100 characters).",
+            "minLength": 3,
+            "maxLength": 100,
+            "example": "StudyFlow"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional project description, up to 500 characters.",
+            "maxLength": 500,
+            "example": "A system for managing learning projects."
+          },
+          "status": {
+            "type": "string",
+            "description": "Current project status.",
+            "enum": [
+              "draft",
+              "active",
+              "completed"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "ProjectResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 10,
+            "description": "Unique project identifier."
+          },
+          "name": {
+            "type": "string",
+            "example": "StudyFlow",
+            "description": "Project name."
+          },
+          "description": {
+            "type": "string",
+            "example": "A system for managing learning projects.",
+            "description": "Project description."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "completed"
+            ],
+            "example": "active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-23T10:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "createdAt"
+        ]
+      },
+      "ApiErrorDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "https://example.com/problems/project-not-found"
+          },
+          "title": {
+            "type": "string",
+            "example": "Project not found"
+          },
+          "status": {
+            "type": "number",
+            "example": 404,
+            "description": "HTTP status code."
+          },
+          "detail": {
+            "type": "string",
+            "example": "Project with id 10 was not found"
+          },
+          "instance": {
+            "type": "string",
+            "example": "/projects/10"
+          },
+          "code": {
+            "type": "string",
+            "example": "PROJECT_NOT_FOUND"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "field": "name",
+                "message": "Name must contain at least 3 characters"
+              }
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "code",
+          "requestId"
+        ]
+      },
+      "CreateEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100,
+            "example": "Node.js Workshop"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Introductory campus workshop."
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "11111111-1111-4111-8111-111111111111"
+          }
+        },
+        "required": [
+          "title",
+          "categoryId"
+        ]
+      },
+      "UpdateEventDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100,
+            "example": "Advanced Node.js Workshop"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Updated workshop details."
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "11111111-1111-4111-8111-111111111111"
+          }
+        }
+      },
+      "CreateRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "22222222-2222-4222-8222-222222222222"
+          }
+        },
+        "required": [
+          "participantId"
+        ]
+      },
+      "EventResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "title": {
+            "type": "string",
+            "example": "Node.js Workshop"
+          },
+          "description": {
+            "type": "string",
+            "example": "Introductory campus workshop."
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "11111111-1111-4111-8111-111111111111"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-10-07T06:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-10-07T06:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "categoryId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CategoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "11111111-1111-4111-8111-111111111111"
+          },
+          "name": {
+            "type": "string",
+            "example": "Academic"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "RegistrationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "33333333-3333-4333-8333-333333333333"
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "participantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "22222222-2222-4222-8222-222222222222"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-10-07T06:05:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "participantId",
+          "createdAt"
+        ]
+      }
+    }
+  },
+  "security": [
+    {},
+    {
+      "bearerAuth": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Source repository for this practical work.",
+    "url": "https://github.com/vladdemi-bot/freim-work"
+  }
+}
